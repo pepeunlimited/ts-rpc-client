@@ -1,8 +1,9 @@
 {
   "name": "ts-rpc-client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "author": "",
+  "main": "./lib/main.js",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^12.12.21",
