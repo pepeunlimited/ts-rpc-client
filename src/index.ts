@@ -1,6 +1,6 @@
 import http from 'http';
 
-class Rpc {
+export class Rpc {
   
   private readonly host: string;
   private readonly port: number;
