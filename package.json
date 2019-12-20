@@ -1,9 +1,10 @@
 {
   "name": "ts-rpc-client",
-  "version": "0.0.2",
-  "description": "",
-  "author": "",
+  "version": "0.0.3",
+  "description": "rpc-client",
+  "author": "PepeUnlimited Oy",
   "main": "./lib/main.js",
+  "types": "./lib/main.d.ts",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^12.12.21",
