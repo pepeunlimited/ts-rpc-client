@@ -1,4 +1,5 @@
 import http from 'http';
+import { isNullOrUndefined } from 'util';
 
 export class Rpc {
   
@@ -56,7 +57,9 @@ function onError(data: Uint8Array): Error {
     const json = JSON.parse(data.toString());
     const error = new Error();
     (error as TwirpError).isTwirpError = true;
-    (error as TwirpError).reason = json.meta['reason'];
+    if (!isNullOrUndefined(json.meta)) { // fix null reading if reason not exist
+      (error as TwirpError).reason = json.meta['reason'];  
+    }
     (error as TwirpError).msg = json.msg;
     (error as TwirpError).code = json.code;
     return error;
