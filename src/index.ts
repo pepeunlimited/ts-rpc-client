@@ -1,32 +1,48 @@
-import http from 'http';
+import http, { RequestOptions, OutgoingHttpHeaders } from 'http';
 import { isNullOrUndefined } from 'util';
+
+/** A sample application context. */
+export class Context {
+  private dataLoaders = new Map<string, any>();
+
+  public accessToken: string | null | undefined;
+
+  getDataLoader<T>(id: string, cstr: () => T): T {
+    if (!this.dataLoaders.has(id)) {
+      this.dataLoaders.set(id, cstr());
+    }
+    return this.dataLoaders.get(id);
+  }
+}
 
 export class Rpc {
   
   private readonly host: string;
   private readonly port: number;
-
+  
   constructor(host: string, port: number) {
-    this.host = host
-    this.port = port
+    this.host = host;
+    this.port = port;
   }
 
-  request(service: string, method: string, data: Uint8Array): Promise<Uint8Array> {
+  request(ctx: Context, service: string, method: string, data: Uint8Array): Promise<Uint8Array> {
     return new Promise<Uint8Array>((resolve, reject) => {
       const chunks: Buffer[] = [];
       const path = "/twirp/" + service + "/" + method;
+      const config: RequestOptions = {
+        hostname: this.host,
+        port: this.port,
+        path: path,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/protobuf',
+          'Content-Length': Buffer.byteLength(data),
+          'Authorization': ctx.accessToken as string,
+        },
+      }
       const req = http
         .request(
-          {
-            hostname: this.host,
-            port: this.port,
-            path: path,
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/protobuf',
-              'Content-Length': Buffer.byteLength(data),
-            },
-          },
+          config,
           res => {
             res.on('data', chunk => chunks.push(chunk));
             res.on('end', () => {

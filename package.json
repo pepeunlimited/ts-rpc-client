@@ -1,13 +1,14 @@
 {
   "name": "ts-rpc-client",
-  "version": "0.1.1",
+  "version": "0.2.6",
   "description": "rpc-client",
   "author": "PepeUnlimited Oy",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "ISC",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "republish": "rm -rf dist/ && tsc && npm publish"
   },
   "devDependencies": {
     "@types/node": "^12.12.21",
