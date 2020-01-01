@@ -29,17 +29,28 @@ export class Rpc {
     return new Promise<Uint8Array>((resolve, reject) => {
       const chunks: Buffer[] = [];
       const path = "/twirp/" + service + "/" + method;
+      let headers: OutgoingHttpHeaders = {};
+      if (!isNullOrUndefined(ctx.accessToken)) {
+        headers = {
+          'Authorization': ctx.accessToken as string,
+          'Content-Type': 'application/protobuf',
+          'Content-Length': Buffer.byteLength(data),
+        };
+      } else {
+        headers = {
+          'Content-Type': 'application/protobuf',
+          'Content-Length': Buffer.byteLength(data),
+        };
+      }
+
+
       const config: RequestOptions = {
         hostname: this.host,
         port: this.port,
         path: path,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/protobuf',
-          'Content-Length': Buffer.byteLength(data),
-          'Authorization': ctx.accessToken as string,
-        },
-      }
+        headers: headers,
+      };
       const req = http
         .request(
           config,
@@ -73,8 +84,11 @@ function onError(data: Uint8Array): Error {
     const json = JSON.parse(data.toString());
     const error = new Error();
     (error as TwirpError).isTwirpError = true;
-    if (!isNullOrUndefined(json.meta)) { // fix null reading if reason not exist
+    if (!isNullOrUndefined(json.meta)) {
       (error as TwirpError).reason = json.meta['reason'];  
+    }
+    if (!isNullOrUndefined(json.meta)) {
+      (error as TwirpError).argument = json.meta['argument'];
     }
     (error as TwirpError).msg = json.msg;
     (error as TwirpError).code = json.code;
@@ -99,6 +113,7 @@ export interface TwirpError extends Error {
   reason:         string
   code:           string
   msg:            string
+  argument:       string
 }
 
 export interface UnknownError extends Error {
