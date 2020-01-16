@@ -5,7 +5,10 @@ import { isNullOrUndefined } from 'util';
 export class Context {
   private dataLoaders = new Map<string, any>();
 
+  public userId: number | null | undefined;
   public accessToken: string | null | undefined;
+  public isDebug: boolean = false;
+
 
   getDataLoader<T>(id: string, cstr: () => T): T {
     if (!this.dataLoaders.has(id)) {
@@ -30,20 +33,21 @@ export class Rpc {
       const chunks: Buffer[] = [];
       const path = "/twirp/" + service + "/" + method;
       let headers: OutgoingHttpHeaders = {};
-      if (!isNullOrUndefined(ctx.accessToken)) {
-        headers = {
-          'Authorization': ctx.accessToken as string,
-          'Content-Type': 'application/protobuf',
-          'Content-Length': Buffer.byteLength(data),
-        };
-      } else {
-        headers = {
-          'Content-Type': 'application/protobuf',
-          'Content-Length': Buffer.byteLength(data),
-        };
+      headers = {
+        'Content-Type': 'application/protobuf',
+        'Content-Length': Buffer.byteLength(data),
+      };
+
+      if (!isNullOrUndefined(ctx.userId)) {
+        headers['X-JWT-UserId'] = ctx.userId;
       }
-
-
+      if (ctx.isDebug) {
+        console.log(" ---- Begin ---- ");
+        console.log(path);
+        console.log(headers);
+        console.log(ctx);
+        console.log(" ---- End ---- ");
+      }
       const config: RequestOptions = {
         hostname: this.host,
         port: this.port,
