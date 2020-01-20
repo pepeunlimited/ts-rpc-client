@@ -6,9 +6,7 @@ export class Context {
   private dataLoaders = new Map<string, any>();
 
   public userId: number | null | undefined;
-  public accessToken: string | null | undefined;
   public isDebug: boolean = false;
-
 
   getDataLoader<T>(id: string, cstr: () => T): T {
     if (!this.dataLoaders.has(id)) {
@@ -37,10 +35,9 @@ export class Rpc {
         'Content-Type': 'application/protobuf',
         'Content-Length': Buffer.byteLength(data),
       };
-
-      if (!isNullOrUndefined(ctx.userId)) {
-        headers['X-JWT-UserId'] = ctx.userId;
-      }
+      // if (!isNullOrUndefined(ctx.userId)) {
+      //   headers['X-JWT-UserId'] = ctx.userId;
+      // }
       if (ctx.isDebug) {
         console.log(" ---- Begin ---- ");
         console.log(path);
