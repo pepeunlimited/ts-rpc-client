@@ -85,10 +85,7 @@ function onError(data: Uint8Array): Error {
     const json = JSON.parse(data.toString());
     const error = new Error();
     (error as TwirpError).isTwirpError = true;
-    if (!isNullOrUndefined(json.meta)) {
-      (error as TwirpError).reason = json.meta['reason'];  
-    }
-    if (!isNullOrUndefined(json.meta)) {
+    if (json.meta != null) {
       (error as TwirpError).argument = json.meta['argument'];
     }
     (error as TwirpError).msg = json.msg;
@@ -111,7 +108,6 @@ function onUnknownError(error: Error, data: string | null): Error {
 
 export interface TwirpError extends Error {
   isTwirpError:   boolean
-  reason:         string
   code:           string
   msg:            string
   argument:       string
