@@ -1,11 +1,10 @@
 import http, { RequestOptions, OutgoingHttpHeaders } from 'http';
-import { isNullOrUndefined } from 'util';
+import * as Long from 'long';
 
-/** A sample application context. */
 export class Context {
   private dataLoaders = new Map<string, any>();
 
-  public userId: number | null | undefined;
+  public userId: Long | null | undefined;
   public isDebug: boolean = false;
 
   getDataLoader<T>(id: string, cstr: () => T): T {
@@ -35,14 +34,13 @@ export class Rpc {
         'Content-Type': 'application/protobuf',
         'Content-Length': Buffer.byteLength(data),
       };
-      // if (!isNullOrUndefined(ctx.userId)) {
-      //   headers['X-JWT-UserId'] = ctx.userId;
-      // }
       if (ctx.isDebug) {
         console.log(" ---- Begin ---- ");
-        console.log(path);
-        console.log(headers);
-        console.log(ctx);
+        console.log("SERVICE: " + service);
+        console.log("METHOD: " + method);
+        console.log("PATH " + path);
+        console.log("HEADERS "+headers);
+        console.log("CTX: " + ctx);
         console.log(" ---- End ---- ");
       }
       const config: RequestOptions = {
