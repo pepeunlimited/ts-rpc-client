@@ -1,10 +1,9 @@
 import http, { RequestOptions, OutgoingHttpHeaders } from 'http';
-import * as Long from 'long';
 
 export class Context {
   private dataLoaders = new Map<string, any>();
 
-  public userId: Long | null | undefined;
+  public userId: number | null | undefined;
   public isDebug: boolean = false;
 
   getDataLoader<T>(id: string, cstr: () => T): T {
@@ -38,9 +37,11 @@ export class Rpc {
         console.log(" ---- Begin ---- ");
         console.log("SERVICE: " + service);
         console.log("METHOD: " + method);
-        console.log("PATH " + path);
-        console.log("HEADERS "+headers);
-        console.log("CTX: " + ctx);
+        console.log("PATH: " + path);
+        console.log("HEADERS:");
+        console.log(headers);
+        console.log("CTX:");
+        console.log(ctx);
         console.log(" ---- End ---- ");
       }
       const config: RequestOptions = {
