@@ -5,7 +5,7 @@ export class Context {
 
   public userId: number | null | undefined;
   public isDebug: boolean = false;
-  public clientMutationId: string|undefined
+  public apolloOperationId: string|undefined
 
   getDataLoader<T>(id: string, cstr: () => T): T {
     if (!this.dataLoaders.has(id)) {
