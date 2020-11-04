@@ -4,4 +4,4 @@ A simple http client for `binary` requests.
 
 ## License
 
-`ts-rpc-client` is [MIT-licensed](./LICENSE).
+`ts-rpc-client` is [MIT-licensed](./LICENSE.md).
