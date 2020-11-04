@@ -18,9 +18,9 @@ export class Context {
 export class Rpc {
   
   private readonly host: string;
-  private readonly port: number;
+  private readonly port: number|string;
   
-  constructor(host: string, port: number) {
+  constructor(host: string, port: number|string) {
     this.host = host;
     this.port = port;
   }
