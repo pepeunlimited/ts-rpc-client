@@ -1,7 +1,7 @@
 import axios, {AxiosRequestConfig} from 'axios';
 
 export class Context {
-  private dataLoaders = new Map<string, any>();
+  public dataLoaders = new Map<string, any>();
 
   public userId: number | null | undefined;
   public isDebug: boolean = false;
