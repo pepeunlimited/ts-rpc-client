@@ -8,6 +8,19 @@ export class Context {
   public apolloOperationId: string|undefined
 
   getDataLoader<T>(id: string, cstr: () => T): T {
+    if (this.isDebug) {
+      console.log("DataLoaders-id: "+id)
+      console.log("DataLoaders: "+ this.dataLoaders.get(id));
+
+      console.log([...this.dataLoaders.entries()]);
+      // [[1, "hello"]]
+
+      console.log([...this.dataLoaders.keys()]);
+      // [1]
+
+      console.log([...this.dataLoaders.values()]);
+
+    }
     if (!this.dataLoaders.has(id)) {
       this.dataLoaders.set(id, cstr());
     }
@@ -41,8 +54,8 @@ export class Rpc {
         console.log("PATH: " + path);
         console.log("HEADERS:");
         console.log(headers);
-        console.log("CTX:");
-        console.log(ctx);
+        //console.log("CTX:");
+        //console.log(ctx);
         console.log(" ---- End ---- ");
       }
       const config: RequestOptions = {

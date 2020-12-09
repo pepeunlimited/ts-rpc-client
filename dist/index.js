@@ -11,6 +11,10 @@ class Context {
         this.isDebug = false;
     }
     getDataLoader(id, cstr) {
+        if (this.isDebug) {
+            console.log("DataLoaders-id: " + id);
+            console.log("DataLoaders: " + this.dataLoaders);
+        }
         if (!this.dataLoaders.has(id)) {
             this.dataLoaders.set(id, cstr());
         }
@@ -39,8 +43,8 @@ class Rpc {
                 console.log("PATH: " + path);
                 console.log("HEADERS:");
                 console.log(headers);
-                console.log("CTX:");
-                console.log(ctx);
+                //console.log("CTX:");
+                //console.log(ctx);
                 console.log(" ---- End ---- ");
             }
             const config = {
