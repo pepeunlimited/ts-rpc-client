@@ -44,11 +44,10 @@ class Rpc {
         return axios_1.default.request(config)
             .then((response) => {
             return response.data;
-        }).catch(function (error) {
+        }).catch((error) => {
             // Any status codes that falls outside the range of 2xx cause this function to trigger
             console.log("HOLA from ERROR: !!!!");
-            console.log(error);
-            return Promise.reject(error);
+            return Promise.reject(error.response.data);
         });
     }
 }

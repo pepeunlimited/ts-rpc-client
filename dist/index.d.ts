@@ -1,5 +1,5 @@
 export declare class Context {
-    private dataLoaders;
+    dataLoaders: Map<string, any>;
     userId: number | null | undefined;
     isDebug: boolean;
     apolloOperationId: string | undefined;
