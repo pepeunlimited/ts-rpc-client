@@ -47,31 +47,24 @@ export class Rpc {
         .then((response) => {
           return response.data;
         }).catch((error) => {
-          // Any status codes that falls outside the range of 2xx cause this function to trigger
-          console.log("HOLA from ERROR: !!!!")
-          return Promise.reject(error.response.data)
+          const status: number = error.response.status;
+          const data   = error.response.data;
+          const statusText: string = error.response.statusText;
+          if (status == 500) {
+            const unknown: UnknownError = {
+              message: "internal server error",
+              msg: statusText,
+              name: "something bad happened",
+              stack: undefined,
+              isUnknownError: true
+            }
+            return Promise.reject(unknown)
+          }
+          let twirpError: TwirpError = JSON.parse(data.toString());
+          twirpError.isTwirpError = true
+          return Promise.reject(twirpError)
         })
   }
-}
-
-function onError(data: Uint8Array): Error {
-  try {
-    let twirpError: TwirpError = JSON.parse(data.toString());
-    twirpError.isTwirpError = true
-    return twirpError;
-  } catch (error) {
-    return onUnknownError(error, data.toString())
-  }
-}
-
-function onUnknownError(error: Error, data: string | null): Error {
-  (error as UnknownError).isUnknownError = true;
-  if (data == null) {
-    (error as UnknownError).msg = error.message;
-  } else {
-    (error as UnknownError).msg = data;
-  }
-  return error
 }
 
 export interface TwirpError extends Error {
