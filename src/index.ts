@@ -1,5 +1,8 @@
 import http, { RequestOptions, OutgoingHttpHeaders } from 'http';
 
+import axios, {AxiosRequestConfig} from 'axios';
+import {Order} from "ts-jemma-genproto/dist/protobuf/resources/order";
+
 export class Context {
   private dataLoaders = new Map<string, any>();
 
@@ -8,19 +11,6 @@ export class Context {
   public apolloOperationId: string|undefined
 
   getDataLoader<T>(id: string, cstr: () => T): T {
-    if (this.isDebug) {
-      console.log("DataLoaders-id: "+id)
-      console.log("DataLoaders: "+ this.dataLoaders.get(id));
-
-      console.log([...this.dataLoaders.entries()]);
-      // [[1, "hello"]]
-
-      console.log([...this.dataLoaders.keys()]);
-      // [1]
-
-      console.log([...this.dataLoaders.values()]);
-
-    }
     if (!this.dataLoaders.has(id)) {
       this.dataLoaders.set(id, cstr());
     }
@@ -39,32 +29,56 @@ export class Rpc {
   }
 
   request(ctx: Context, service: string, method: string, data: Uint8Array): Promise<Uint8Array> {
-    return new Promise<Uint8Array>((resolve, reject) => {
-      const chunks: Buffer[] = [];
-      const path = "/twirp/" + service + "/" + method;
-      let headers: OutgoingHttpHeaders = {};
-      headers = {
-        'Content-Type': 'application/protobuf',
-        'Content-Length': Buffer.byteLength(data),
-      };
-      if (ctx.isDebug) {
-        console.log(" ---- Begin ---- ");
-        console.log("SERVICE: " + service);
-        console.log("METHOD: " + method);
-        console.log("PATH: " + path);
-        console.log("HEADERS:");
-        console.log(headers);
-        //console.log("CTX:");
-        //console.log(ctx);
-        console.log(" ---- End ---- ");
-      }
-      const config: RequestOptions = {
-        hostname: this.host,
-        port: this.port,
-        path: path,
-        method: 'POST',
-        headers: headers,
-      };
+    const chunks: Buffer[] = [];
+    const path = "/twirp/" + service + "/" + method;
+    let headers: OutgoingHttpHeaders = {};
+    headers = {
+      'Accept': 'application/protobuf',
+      'Content-Type': 'application/protobuf',
+      'Content-Length': Buffer.byteLength(data),
+    };
+    const config: AxiosRequestConfig = {
+      baseURL: 'http://'+this.host+':'+this.port,
+      method: 'POST',
+      url: path,
+      responseType: 'arraybuffer',
+      headers: headers,
+      data: data,
+      decompress: false,
+    };
+    if (ctx.isDebug) {
+      console.log(config)
+    }// Add a request interceptor
+    axios.interceptors.request.use(function (config) {
+      // Do something before request is sent
+      return config;
+    }, function (error) {
+      // Do something with request error
+      return Promise.reject(error);
+    });
+
+    // Add a response interceptor
+    axios.interceptors.response.use(function (response) {
+      // Any status code that lie within the range of 2xx cause this function to trigger
+      // Do something with response data
+      //console.log(response.statusText)
+      //console.log(response.config)
+      //console.log(String.fromCharCode.apply(null, response.data));
+
+      return response;
+    }, function (error) {
+      // Any status codes that falls outside the range of 2xx cause this function to trigger
+      // Do something with response error
+      return Promise.reject(error);
+    });
+    return axios.request(config).then((response) => {
+      return response.data;
+    });
+
+
+
+
+    /*return new Promise<Uint8Array>((resolve, reject) => {
       const req = http
         .request(
           config,
@@ -87,7 +101,7 @@ export class Rpc {
           reject(onUnknownError(err, null));
         });
       req.end(data);
-    });
+    });*/
   }
 }
 

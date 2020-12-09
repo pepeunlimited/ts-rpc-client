@@ -1,20 +1,26 @@
 {
   "name": "ts-rpc-client",
-  "version": "0.4.7",
+  "version": "0.4.11",
   "description": "rpc-client",
   "author": "PepeUnlimited Oy",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
+    "test": "jest --env=node",
     "build": "tsc",
     "republish": "rm -rf dist/ && tsc && npm publish"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.18",
     "@types/node": "^12.12.21",
-    "typescript": "4.0.5"
+    "jest": "^26.6.3",
+    "ts-jest": "^26.4.4",
+    "typescript": "^4.0.5",
+    "ts-jemma-genproto": "git+ssh://git@gitlab.com/pepeunlimited/ts-jemma-genproto.git#c65ecf6c530ca4d4a7f2c20bf055842497143d31"
   },
   "dependencies": {
-    "@types/long": "^4.0.1"
+    "@types/long": "^4.0.1",
+    "axios": "^0.21.0"
   }
 }
