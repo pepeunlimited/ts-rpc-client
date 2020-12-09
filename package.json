@@ -1,6 +1,6 @@
 {
   "name": "ts-rpc-client",
-  "version": "0.4.16",
+  "version": "0.4.29",
   "description": "rpc-client",
   "author": "PepeUnlimited Oy",
   "main": "dist/index.js",

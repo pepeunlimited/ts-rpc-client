@@ -11,7 +11,6 @@ export declare class Rpc {
     constructor(host: string, port: number | string);
     request(ctx: Context, service: string, method: string, data: Uint8Array): Promise<Uint8Array>;
 }
-export declare type FetchError = TwirpError | UnknownError;
 export interface TwirpError extends Error {
     isTwirpError: boolean;
     code: string;

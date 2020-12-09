@@ -8,17 +8,24 @@ test('basic', async () => {
     const ctx = new Context()
     ctx.isDebug = false
 
-/*
-    const rpc = new OrderServiceClientImpl<Context>(new Rpc("api.dev.pepeunlimited.com", "80"));
-    const response = await Promise.all([rpc.GetOrder(ctx, { me: undefined , refNum: { referenceNumber: "hello"  } }), rpc.GetOrder(ctx, { me: undefined , refNum: { referenceNumber: "hello"  } })]);
-    expect(ctx.isDebug).not.toBeNull()
-    */
+
+
+        const rpc = new OrderServiceClientImpl<Context>(new Rpc("api.dev.pepeunlimited.com", "80"));
+        const response = await Promise.all([rpc.GetOrder(ctx, { me: undefined , refNum: { referenceNumber: "helo"  } }), rpc.GetOrder(ctx, { me: undefined , refNum: { referenceNumber: "hello"  } })]);
+        console.log(response)
+        expect(ctx.isDebug).not.toBeNull()
+
+
+
+
+    /*
+
 
 
     const rpc = new CredentialsServiceClientImpl<Context>(new Rpc("api.dev.pepeunlimited.com", "80"));
-    const respose = await rpc.VerifyCredentials(ctx, { password: "newpw", username:"testaaja.seppo@gmail.com" })
+    const respose = await rpc.VerifyCredentials(ctx, { password: "newpw", username:"testaajaeppo@gmail.com" })
     console.log(respose)
     expect(ctx.isDebug).not.toBeNull()
-
+*/
 
 });

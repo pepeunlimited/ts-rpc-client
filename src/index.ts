@@ -1,5 +1,3 @@
-import http, { RequestOptions, OutgoingHttpHeaders } from 'http';
-
 import axios, {AxiosRequestConfig} from 'axios';
 
 export class Context {
@@ -28,90 +26,39 @@ export class Rpc {
   }
 
   request(ctx: Context, service: string, method: string, data: Uint8Array): Promise<Uint8Array> {
-    const chunks: Buffer[] = [];
     const path = "/twirp/" + service + "/" + method;
-    let headers: OutgoingHttpHeaders = {};
-    headers = {
-      'Accept': 'application/protobuf',
-      'Content-Type': 'application/protobuf',
-      'Content-Length': Buffer.byteLength(data),
-    };
     const config: AxiosRequestConfig = {
       baseURL: 'http://'+this.host+':'+this.port,
       method: 'POST',
       url: path,
       responseType: 'arraybuffer',
-      headers: headers,
+      headers: {
+        'Accept': 'application/protobuf',
+        'Content-Type': 'application/protobuf',
+        'Content-Length': Buffer.byteLength(data),
+      },
       data: data,
-
+      decompress: false,
     };
     if (ctx.isDebug) {
       console.log(config)
-    }// Add a request interceptor
-    axios.interceptors.request.use(function (config) {
-      // Do something before request is sent
-      return config;
-    }, function (error) {
-      // Do something with request error
-      return Promise.reject(error);
-    });
-
-    // Add a response interceptor
-    axios.interceptors.response.use(function (response) {
-      // Any status code that lie within the range of 2xx cause this function to trigger
-      // Do something with response data
-      return response.data;
-    }, function (error) {
-      // Any status codes that falls outside the range of 2xx cause this function to trigger
-      // Do something with response error
-      return Promise.reject(error);
-    });
-
+    }
     return axios.request(config)
-
-
-
-
-    /*return new Promise<Uint8Array>((resolve, reject) => {
-      const req = http
-        .request(
-          config,
-          res => {
-            res.on('data', chunk => chunks.push(chunk));
-            res.on('end', () => {
-              const data = Buffer.concat(chunks);
-              if (res.statusCode != 200) {
-                reject(onError(data));
-              } else {
-                resolve(data);
-              }
-            });
-            res.on('error', err => {
-              reject(onUnknownError(err, null));
-            });
-          },
-        )
-        .on('error', err => {
-          reject(onUnknownError(err, null));
-        });
-      req.end(data);
-    });*/
+        .then((response) => {
+          return response.data;
+        }).catch((error) => {
+          // Any status codes that falls outside the range of 2xx cause this function to trigger
+          console.log("HOLA from ERROR: !!!!")
+          return Promise.reject(error.response.data)
+        })
   }
 }
 
-export type FetchError = | TwirpError | UnknownError;
-
 function onError(data: Uint8Array): Error {
   try {
-    const json = JSON.parse(data.toString());
-    const error = new Error();
-    (error as TwirpError).isTwirpError = true;
-    if (json.meta != null) {
-      (error as TwirpError).argument = json.meta['argument'];
-    }
-    (error as TwirpError).msg = json.msg;
-    (error as TwirpError).code = json.code;
-    return error;
+    let twirpError: TwirpError = JSON.parse(data.toString());
+    twirpError.isTwirpError = true
+    return twirpError;
   } catch (error) {
     return onUnknownError(error, data.toString())
   }
