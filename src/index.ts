@@ -1,7 +1,6 @@
 import http, { RequestOptions, OutgoingHttpHeaders } from 'http';
 
 import axios, {AxiosRequestConfig} from 'axios';
-import {Order} from "ts-jemma-genproto/dist/protobuf/resources/order";
 
 export class Context {
   private dataLoaders = new Map<string, any>();
@@ -19,10 +18,10 @@ export class Context {
 }
 
 export class Rpc {
-  
+
   private readonly host: string;
   private readonly port: number|string;
-  
+
   constructor(host: string, port: number|string) {
     this.host = host;
     this.port = port;
@@ -44,7 +43,7 @@ export class Rpc {
       responseType: 'arraybuffer',
       headers: headers,
       data: data,
-      decompress: false,
+
     };
     if (ctx.isDebug) {
       console.log(config)
@@ -61,19 +60,14 @@ export class Rpc {
     axios.interceptors.response.use(function (response) {
       // Any status code that lie within the range of 2xx cause this function to trigger
       // Do something with response data
-      //console.log(response.statusText)
-      //console.log(response.config)
-      //console.log(String.fromCharCode.apply(null, response.data));
-
-      return response;
+      return response.data;
     }, function (error) {
       // Any status codes that falls outside the range of 2xx cause this function to trigger
       // Do something with response error
       return Promise.reject(error);
     });
-    return axios.request(config).then((response) => {
-      return response.data;
-    });
+
+    return axios.request(config)
 
 
 
@@ -146,13 +140,13 @@ export interface UnknownError extends Error {
 }
 
 export const isTwirpError = (
-  err: TwirpError | any,
+    err: TwirpError | any,
 ): err is TwirpError => {
   return !!(err instanceof Error && (err as TwirpError).isTwirpError);
 };
 
 export const isUnknownError = (
-  err: UnknownError | any,
+    err: UnknownError | any,
 ): err is UnknownError => {
   return !!(err instanceof Error && (err as UnknownError).isUnknownError);
 };

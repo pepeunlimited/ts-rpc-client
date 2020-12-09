@@ -1,6 +1,6 @@
 {
   "name": "ts-rpc-client",
-  "version": "0.4.11",
+  "version": "0.4.16",
   "description": "rpc-client",
   "author": "PepeUnlimited Oy",
   "main": "dist/index.js",
@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --env=node",
-    "build": "tsc",
+    "build": "rm -rf dist/ && tsc",
     "republish": "rm -rf dist/ && tsc && npm publish"
   },
   "devDependencies": {
