@@ -14,6 +14,7 @@ export declare class TwirpError2 extends Error {
 export interface TwirpErrorCode {
     isNotFound: boolean;
     isUnauthenticated: boolean;
+    isMalformed: boolean;
 }
 export interface TwirpErrorMsg {
     accessTokenMalformed: boolean;

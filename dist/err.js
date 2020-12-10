@@ -43,9 +43,14 @@ function twirpErrorError(code) {
     if (code == 'unauthenticated') {
         isUnauthenticated = true;
     }
+    let isMalformed = false;
+    if (code == 'malformed') {
+        isMalformed = true;
+    }
     const errorCode = {
         isNotFound: isNotFound,
-        isUnauthenticated: isUnauthenticated
+        isUnauthenticated: isUnauthenticated,
+        isMalformed: isMalformed
     };
     return errorCode;
 }

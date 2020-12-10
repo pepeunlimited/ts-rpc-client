@@ -47,9 +47,14 @@ function twirpErrorError(code: string): TwirpErrorCode {
     if (code == 'unauthenticated') {
         isUnauthenticated = true
     }
+    let isMalformed: boolean = false
+    if (code == 'malformed') {
+        isMalformed = true
+    }
     const errorCode: TwirpErrorCode = {
         isNotFound: isNotFound,
-        isUnauthenticated: isUnauthenticated
+        isUnauthenticated: isUnauthenticated,
+        isMalformed: isMalformed
     }
     return errorCode
 }
@@ -107,6 +112,7 @@ export class TwirpError2 extends Error {
 export interface TwirpErrorCode {
     isNotFound:             boolean
     isUnauthenticated:      boolean
+    isMalformed:            boolean
 }
 
 export interface TwirpErrorMsg {
