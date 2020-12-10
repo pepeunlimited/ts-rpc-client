@@ -75,6 +75,7 @@ exports.TwirpError2 = TwirpError2;
 class ServerError extends Error {
     constructor(msg, code, statusCode, path, host) {
         super(msg);
+        this.msg = msg;
         this.code = code;
         this.statusCode = statusCode;
         this.path = path;

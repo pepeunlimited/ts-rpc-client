@@ -16,6 +16,7 @@ export declare class ServerError extends Error {
     code: string;
     path: string;
     host: string;
+    msg: string;
     constructor(msg: string, code: string, statusCode: number, path: string, host: string);
 }
 export interface TwirpError extends Error {
