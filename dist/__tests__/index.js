@@ -19,14 +19,15 @@ test('.isNotFound.toBe.true', async () => {
 test('.DecodeTwirpError.not.toBeNull', async () => {
     const ctx = new ctx_1.Context();
     ctx.isDebug = false;
-    try {
-        const rpc = new order_service_1.OrderServiceClientImpl(new rpc_1.Rpc("api.dev.pepeunlimited.com", "80"));
-        await Promise.all([rpc.GetOrder(ctx, { me: undefined, refNum: { referenceNumber: "helo" } }), rpc.GetOrder(ctx, { me: undefined, refNum: { referenceNumber: "hello" } })]);
-    }
-    catch (error) {
-        const decoded = err_1.DecodeTwirpError(error);
-        expect(decoded).not.toBeNull();
-    }
+    ctx.rpcDataLoaderOptions = {
+        cache: false
+    };
+    const rpc = new order_service_1.OrderServiceClientImpl(new rpc_1.Rpc("api.dev.pepeunlimited.com", "80"));
+    const response = await Promise.allSettled([
+        rpc.GetOrder(ctx, { me: undefined, refNum: { referenceNumber: "helo" } }),
+        rpc.GetOrder(ctx, { me: undefined, refNum: { referenceNumber: "hello" } }) // something
+    ]);
+    expect(response).not.toBeNull();
 });
 test('.DecodeTwirpError.null', async () => {
     const ctx = new ctx_1.Context();
@@ -40,15 +41,32 @@ test('.DecodeTwirpError.null', async () => {
         expect(decoded).toBeNull();
     }
 });
-test('.InternalServerError', async () => {
+test('.ServerError.NodeError', async () => {
     const ctx = new ctx_1.Context();
     ctx.isDebug = false;
     try {
-        const rpc = new order_service_1.OrderServiceClientImpl(new rpc_1.Rpc("api.dev.pepunlimited.com", "80"));
+        const rpc = new order_service_1.OrderServiceClientImpl(new rpc_1.Rpc("api.dev.pepnlimited.com", "80"));
         await rpc.GetOrder(ctx, { me: undefined, refNum: { referenceNumber: "helo" } });
     }
     catch (error) {
-        const decoded = err_1.DecodeTwirpError(error);
-        expect(decoded).toBeNull();
+        const twirpError = err_1.DecodeTwirpError(error);
+        expect(twirpError).toBeNull();
+        const serverError = err_1.DecodeServerError(error);
+        expect(serverError).not.toBeNull();
     }
 });
+/*
+test('.ServerError.NotFound', async () => {
+    const ctx = new Context()
+    ctx.isDebug = false
+    try {
+        const rpc = new OrderServiceClientImpl<Context>(new Rpc("api.dev.pepeunlimited.com", "80"));
+        await rpc.GetOrder(ctx, { me: undefined , refNum: { referenceNumber: "helo"  } })
+    }catch (error) {
+        const twirpError = DecodeTwirpError(error)
+        expect(twirpError).toBeNull()
+        const serverError = DecodeServerError(error);
+        console.log(serverError)
+        expect(serverError).not.toBeNull()
+    }
+});*/ 

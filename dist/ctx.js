@@ -3,6 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Context = void 0;
 class Context {
     constructor() {
+        /**
+         * REMEMBER:
+         *
+         * If function returns an Error instance for an individual value,
+         * that Error will be CACHED to avoid frequently loading the same Error
+         *
+         * Avoid Error not be CACHED using dataLoaders.clear()
+         */
         this.dataLoaders = new Map();
         this.isDebug = false;
     }

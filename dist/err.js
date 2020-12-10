@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isUnknownError = exports.isTwirpError = exports.TwirpError2 = exports.EncodeTwirpError = exports.DecodeTwirpError = void 0;
+exports.isUnknownError = exports.isTwirpError = exports.ServerError = exports.TwirpError2 = exports.EncodeServerError = exports.EncodeNetworkError = exports.EncodeTwirpError = exports.DecodeServerError = exports.DecodeTwirpError = void 0;
+/* DECODERS */
 exports.DecodeTwirpError = (err) => {
     const isInstanceof = err instanceof TwirpError2;
     if (!isInstanceof) {
@@ -8,8 +9,17 @@ exports.DecodeTwirpError = (err) => {
     }
     return err;
 };
-exports.EncodeTwirpError = (errorData) => {
+exports.DecodeServerError = (err) => {
+    const isInstanceof = err instanceof ServerError;
+    if (!isInstanceof) {
+        return null;
+    }
+    return err;
+};
+/* ENCODERS */
+exports.EncodeTwirpError = (response) => {
     try {
+        const errorData = response.data;
         let decoded = JSON.parse(errorData.toString());
         let argument = null;
         if (decoded.meta != null) {
@@ -21,15 +31,40 @@ exports.EncodeTwirpError = (errorData) => {
         if (code == 'not_found') {
             isNotFound = true;
         }
-        return new TwirpError2("twirp.Error", msg, code, argument, isNotFound);
+        return new TwirpError2(msg, code, argument, isNotFound);
     }
-    catch (error) {
-        return new Error("can't decode twirp.Error");
+    catch (error) { // fallback
+        return exports.EncodeServerError(response);
     }
 };
+exports.EncodeNetworkError = (error) => {
+    const response = error.response;
+    if (response == null) {
+        const errno = error.errno;
+        const code = error.code;
+        const msg = error.message;
+        const path = error.config.url;
+        const host = error.config.baseURL;
+        return new ServerError(msg, code, errno, path, host);
+    }
+    return exports.EncodeServerError(response);
+};
+exports.EncodeServerError = (response) => {
+    try {
+        const errorData = response.data;
+        const statusCode = response.status;
+        const path = response.config.url;
+        const host = response.config.baseURL;
+        return new ServerError("error.Server", errorData.toString(), statusCode, path, host);
+    }
+    catch (error) {
+        return new Error("something is really broken. can't decode server error");
+    }
+};
+/* ERRORS */
 class TwirpError2 extends Error {
-    constructor(message, msg, code, argument, isNotFound) {
-        super(message);
+    constructor(msg, code, argument, isNotFound) {
+        super("twirp.Error");
         this.msg = msg;
         this.code = code;
         this.argument = argument;
@@ -37,6 +72,16 @@ class TwirpError2 extends Error {
     }
 }
 exports.TwirpError2 = TwirpError2;
+class ServerError extends Error {
+    constructor(msg, code, statusCode, path, host) {
+        super(msg);
+        this.code = code;
+        this.statusCode = statusCode;
+        this.path = path;
+        this.host = host;
+    }
+}
+exports.ServerError = ServerError;
 exports.isTwirpError = (err) => {
     return !!(err instanceof Error && err.isTwirpError);
 };

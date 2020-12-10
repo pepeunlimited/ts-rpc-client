@@ -33,20 +33,21 @@ class Rpc {
             .then((response) => {
             return response.data;
         }).catch((error) => {
-            const status = error.response.status;
-            const data = error.response.data;
-            const statusText = error.response.statusText;
-            if (status == 500) {
-                const unknown = {
-                    message: "internal server error",
-                    msg: statusText,
-                    name: "something bad happened",
-                    stack: undefined,
-                    isUnknownError: true
-                };
-                return Promise.reject(unknown);
+            const serverError = err_1.EncodeNetworkError(error);
+            const decoded = err_1.DecodeServerError(serverError);
+            const code = decoded.code;
+            if (code == 'EADDRINUSE'
+                || code == 'ECONNREFUSED'
+                || code == 'ECONNRESET'
+                || code == 'EPIPE'
+                || code == 'ETIMEDOUT'
+                || code == 'ENOTFOUND') {
+                return Promise.reject(serverError);
             }
-            const twirpError = err_1.EncodeTwirpError(data);
+            else if (decoded?.statusCode == 500) {
+                return Promise.reject(serverError);
+            }
+            const twirpError = err_1.EncodeTwirpError(error.response);
             return Promise.reject(twirpError);
         });
     }
