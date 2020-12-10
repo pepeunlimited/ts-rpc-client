@@ -13,7 +13,7 @@ test('.isNotFound.toBe.true', async () => {
     }
     catch (error) {
         const decoded = err_1.DecodeTwirpError(error);
-        expect(decoded?.isNotFound).toBe(true);
+        expect(decoded?.errorCode.isNotFound).toBe(true);
     }
 });
 test('.DecodeTwirpError.not.toBeNull', async () => {

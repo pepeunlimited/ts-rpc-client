@@ -8,8 +8,18 @@ export declare class TwirpError2 extends Error {
     msg: string;
     code: string;
     argument: string | null;
+    errorCode: TwirpErrorCode;
+    constructor(msg: string, code: string, argument: string | null, errorCode: TwirpErrorCode);
+}
+export interface TwirpErrorCode {
     isNotFound: boolean;
-    constructor(msg: string, code: string, argument: string | null, isNotFound: boolean);
+    isUnauthenticated: boolean;
+}
+export interface TwirpErrorMsg {
+    accessTokenMalformed: boolean;
+    refreshTokenMalformed: boolean;
+    refreshTokenExpired: boolean;
+    accessTokenExpired: boolean;
 }
 export declare class ServerError extends Error {
     statusCode: number;

@@ -27,16 +27,28 @@ exports.EncodeTwirpError = (response) => {
         }
         const msg = decoded.msg;
         const code = decoded.code;
-        let isNotFound = false;
-        if (code == 'not_found') {
-            isNotFound = true;
-        }
-        return new TwirpError2(msg, code, argument, isNotFound);
+        const errorCode = twirpErrorError(code);
+        return new TwirpError2(msg, code, argument, errorCode);
     }
     catch (error) { // fallback
         return exports.EncodeServerError(response);
     }
 };
+function twirpErrorError(code) {
+    let isNotFound = false;
+    if (code == 'not_found') {
+        isNotFound = true;
+    }
+    let isUnauthenticated = false;
+    if (code == 'unauthenticated') {
+        isUnauthenticated = true;
+    }
+    const errorCode = {
+        isNotFound: isNotFound,
+        isUnauthenticated: isUnauthenticated
+    };
+    return errorCode;
+}
 exports.EncodeNetworkError = (error) => {
     const response = error.response;
     if (response == null) {
@@ -63,12 +75,12 @@ exports.EncodeServerError = (response) => {
 };
 /* ERRORS */
 class TwirpError2 extends Error {
-    constructor(msg, code, argument, isNotFound) {
+    constructor(msg, code, argument, errorCode) {
         super("twirp.Error");
         this.msg = msg;
         this.code = code;
         this.argument = argument;
-        this.isNotFound = isNotFound;
+        this.errorCode = errorCode;
     }
 }
 exports.TwirpError2 = TwirpError2;
