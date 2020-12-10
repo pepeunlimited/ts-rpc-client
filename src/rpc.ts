@@ -1,5 +1,9 @@
 import axios, {AxiosRequestConfig} from 'axios';
-import {EncodeTwirpError, UnknownError} from "./err";
+import {
+    DecodeServerError,
+    EncodeNetworkError,
+    EncodeTwirpError,
+} from "./err";
 import {Context} from "./ctx";
 
 export class Rpc {
@@ -34,20 +38,21 @@ export class Rpc {
             .then((response) => {
                 return response.data;
             }).catch((error) => {
-                const status: number = error.response.status;
-                const data   = error.response.data;
-                const statusText: string = error.response.statusText;
-                if (status == 500) {
-                    const unknown: UnknownError = {
-                        message: "internal server error",
-                        msg: statusText,
-                        name: "something bad happened",
-                        stack: undefined,
-                        isUnknownError: true
-                    }
-                    return Promise.reject(unknown)
+                const serverError = EncodeNetworkError(error)
+                const decoded = DecodeServerError(serverError)
+                const code: string = decoded!.code
+                if (code == 'EADDRINUSE'
+                    || code == 'ECONNREFUSED'
+                    || code == 'ECONNRESET'
+                    || code == 'EPIPE'
+                    || code == 'ETIMEDOUT'
+                    || code == 'ENOTFOUND'
+                ) {
+                    return Promise.reject(serverError)
+                } else if (decoded?.statusCode == 500) {
+                    return Promise.reject(serverError)
                 }
-                const twirpError = EncodeTwirpError(data)
+                const twirpError = EncodeTwirpError(error.response)
                 return Promise.reject(twirpError)
             })
     }
