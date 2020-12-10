@@ -12,7 +12,7 @@ test('.isNotFound.toBe.true', async () => {
         await rpc.GetOrder(ctx, { me: undefined , refNum: { referenceNumber: "helo"  } })
     }catch (error) {
         const decoded = DecodeTwirpError(error)
-        expect(decoded?.isNotFound).toBe(true)
+        expect(decoded?.errorCode.isNotFound).toBe(true)
     }
 });
 

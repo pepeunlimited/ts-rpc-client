@@ -30,14 +30,28 @@ export const EncodeTwirpError = (response: AxiosResponse): Error => {
         }
         const msg: string = decoded.msg;
         const code: string = decoded.code;
-        let isNotFound: boolean = false
-        if (code == 'not_found') {
-            isNotFound = true
-        }
-        return new TwirpError2(msg, code, argument, isNotFound)
+        const errorCode: TwirpErrorCode = twirpErrorError(code)
+
+        return new TwirpError2(msg, code, argument, errorCode)
     } catch (error) { // fallback
         return EncodeServerError(response)
     }
+}
+
+function twirpErrorError(code: string): TwirpErrorCode {
+    let isNotFound: boolean = false
+    if (code == 'not_found') {
+        isNotFound = true
+    }
+    let isUnauthenticated: boolean = false
+    if (code == 'unauthenticated') {
+        isUnauthenticated = true
+    }
+    const errorCode: TwirpErrorCode = {
+        isNotFound: isNotFound,
+        isUnauthenticated: isUnauthenticated
+    }
+    return errorCode
 }
 
 export const EncodeNetworkError = (error: any): Error => {
@@ -79,14 +93,27 @@ export class TwirpError2 extends Error {
     msg:            string
     code:           string;
     argument:       string|null;
-    isNotFound:     boolean;
-    constructor(msg: string, code: string, argument: string|null, isNotFound: boolean) {
+    errorCode:      TwirpErrorCode
+
+    constructor(msg: string, code: string, argument: string|null, errorCode: TwirpErrorCode) {
         super("twirp.Error");
         this.msg = msg
         this.code = code;
         this.argument = argument;
-        this.isNotFound = isNotFound;
+        this.errorCode = errorCode
     }
+}
+
+export interface TwirpErrorCode {
+    isNotFound:             boolean
+    isUnauthenticated:      boolean
+}
+
+export interface TwirpErrorMsg {
+    accessTokenMalformed:   boolean
+    refreshTokenMalformed:  boolean
+    refreshTokenExpired:    boolean
+    accessTokenExpired:     boolean
 }
 
 export class ServerError extends Error {
@@ -112,11 +139,11 @@ export class ServerError extends Error {
 /* OLD SHIT */
 
 export interface TwirpError extends Error {
-    isTwirpError:   boolean
-    code:           string
-    msg:            string
-    argument:       string
-    isNotFound:     boolean
+    isTwirpError:          boolean
+    code:                  string
+    msg:                   string
+    argument:              string
+    isNotFound:            boolean
 }
 
 

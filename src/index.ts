@@ -12,4 +12,5 @@ export {
     EncodeServerError,
     DecodeServerError,
     EncodeNetworkError,
+    TwirpErrorCode,
 } from './err';
