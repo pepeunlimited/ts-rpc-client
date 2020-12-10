@@ -24,15 +24,11 @@ export const EncodeTwirpError = (response: AxiosResponse): Error => {
     try {
         const errorData = response.data;
         let decoded: TwirpErrorMessage = JSON.parse(errorData.toString());
-        let argument: string|null = null;
-        if (decoded.meta != null) {
-            argument = decoded.meta.get('argument')!
-        }
         const msg: string = decoded.msg;
         const code: string = decoded.code;
         const errorCode: TwirpErrorCode = twirpErrorError(code)
-
-        return new TwirpError2(msg, code, argument, errorCode)
+        const meta: TwirpErrorMeta|undefined = decoded.meta
+        return new TwirpError2(msg, code, meta, errorCode)
     } catch (error) { // fallback
         return EncodeServerError(response)
     }
@@ -51,10 +47,15 @@ function twirpErrorError(code: string): TwirpErrorCode {
     if (code == 'malformed') {
         isMalformed = true
     }
+    let isInvalidArgument: boolean = false
+    if (code == 'invalid_argument') {
+        isInvalidArgument = true
+    }
     const errorCode: TwirpErrorCode = {
         isNotFound: isNotFound,
         isUnauthenticated: isUnauthenticated,
-        isMalformed: isMalformed
+        isMalformed: isMalformed,
+        isInvalidArgument: isInvalidArgument
     }
     return errorCode
 }
@@ -89,22 +90,24 @@ export const EncodeServerError = (response: AxiosResponse): Error => {
 interface TwirpErrorMessage {
     msg: string
     code: string
-    meta?: Map<string, any>
+    meta?: TwirpErrorMeta
 }
+
+
 
 /* ERRORS */
 
 export class TwirpError2 extends Error {
     msg:            string
     code:           string;
-    argument:       string|null;
+    meta?:          TwirpErrorMeta;
     errorCode:      TwirpErrorCode
 
-    constructor(msg: string, code: string, argument: string|null, errorCode: TwirpErrorCode) {
+    constructor(msg: string, code: string, meta: TwirpErrorMeta|undefined, errorCode: TwirpErrorCode) {
         super("twirp.Error");
         this.msg = msg
         this.code = code;
-        this.argument = argument;
+        this.meta = meta;
         this.errorCode = errorCode
     }
 }
@@ -113,6 +116,7 @@ export interface TwirpErrorCode {
     isNotFound:             boolean
     isUnauthenticated:      boolean
     isMalformed:            boolean
+    isInvalidArgument:      boolean
 }
 
 export interface TwirpErrorMsg {
@@ -120,6 +124,10 @@ export interface TwirpErrorMsg {
     refreshTokenMalformed:  boolean
     refreshTokenExpired:    boolean
     accessTokenExpired:     boolean
+}
+
+export interface TwirpErrorMeta {
+    argument: string
 }
 
 export class ServerError extends Error {

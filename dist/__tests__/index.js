@@ -4,7 +4,9 @@ const order_service_1 = require("ts-jemma-genproto/dist/protobuf/services/order_
 const err_1 = require("../err");
 const ctx_1 = require("../ctx");
 const rpc_1 = require("../rpc");
-test('.isNotFound.toBe.true', async () => {
+const authentication_1 = require("ts-jemma-genproto/dist/protobuf/authentication");
+const user_1 = require("ts-jemma-genproto/dist/protobuf/user");
+test('twipErrorCode.NotFound.toBe.true', async () => {
     const ctx = new ctx_1.Context();
     ctx.isDebug = false;
     try {
@@ -14,6 +16,42 @@ test('.isNotFound.toBe.true', async () => {
     catch (error) {
         const decoded = err_1.DecodeTwirpError(error);
         expect(decoded?.errorCode.isNotFound).toBe(true);
+    }
+});
+test('twipErrorCode.Malformed.toBe.true', async () => {
+    const ctx = new ctx_1.Context();
+    ctx.isDebug = false;
+    try {
+        const rpc = new authentication_1.AuthenticationServiceClientImpl(new rpc_1.Rpc("api.dev.pepeunlimited.com", "80"));
+        await rpc.VerifyAccessToken(ctx, { accessToken: "asdasd" });
+    }
+    catch (error) {
+        const decoded = err_1.DecodeTwirpError(error);
+        expect(decoded?.errorCode.isMalformed).toBe(true);
+    }
+});
+test('twipErrorCode.isNotFound.toBe.true', async () => {
+    const ctx = new ctx_1.Context();
+    ctx.isDebug = false;
+    try {
+        const rpc = new authentication_1.AuthenticationServiceClientImpl(new rpc_1.Rpc("api.dev.pepeunlimited.com", "80"));
+        await rpc.VerifyAccessToken(ctx, { accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RhYWphLnNlcHBvQGdtYWlsLmNvbSIsImVtYWlsIjoidGVzdGFhamEuc2VwcG9AZ21haWwuY29tIiwicm9sZXMiOlsidXNlciJdLCJ1c2VyX2lkIjoxLCJleHAiOjE2MDc2MTQ2NDN9.WjFubqSqHqf_6TRFtuVjHtOgszeaCsz8SOCufJfQMWY" });
+    }
+    catch (error) {
+        const decoded = err_1.DecodeTwirpError(error);
+        expect(decoded?.errorCode.isUnauthenticated).toBe(true);
+    }
+});
+test('twipErrorCode.isInvalidArgument.toBe.true', async () => {
+    const ctx = new ctx_1.Context();
+    ctx.isDebug = false;
+    try {
+        const rpc = new user_1.UserServiceClientImpl(new rpc_1.Rpc("api.dev.pepeunlimited.com", "80"));
+        await rpc.GetUser(ctx, { userId: 0 });
+    }
+    catch (error) {
+        const decoded = err_1.DecodeTwirpError(error);
+        expect(decoded?.errorCode.isInvalidArgument).toBe(true);
     }
 });
 test('.DecodeTwirpError.not.toBeNull', async () => {

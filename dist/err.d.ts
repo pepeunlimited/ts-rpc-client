@@ -7,20 +7,24 @@ export declare const EncodeServerError: (response: AxiosResponse) => Error;
 export declare class TwirpError2 extends Error {
     msg: string;
     code: string;
-    argument: string | null;
+    meta?: TwirpErrorMeta;
     errorCode: TwirpErrorCode;
-    constructor(msg: string, code: string, argument: string | null, errorCode: TwirpErrorCode);
+    constructor(msg: string, code: string, meta: TwirpErrorMeta | undefined, errorCode: TwirpErrorCode);
 }
 export interface TwirpErrorCode {
     isNotFound: boolean;
     isUnauthenticated: boolean;
     isMalformed: boolean;
+    isInvalidArgument: boolean;
 }
 export interface TwirpErrorMsg {
     accessTokenMalformed: boolean;
     refreshTokenMalformed: boolean;
     refreshTokenExpired: boolean;
     accessTokenExpired: boolean;
+}
+export interface TwirpErrorMeta {
+    argument: string;
 }
 export declare class ServerError extends Error {
     statusCode: number;

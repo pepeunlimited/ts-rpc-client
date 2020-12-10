@@ -21,14 +21,11 @@ exports.EncodeTwirpError = (response) => {
     try {
         const errorData = response.data;
         let decoded = JSON.parse(errorData.toString());
-        let argument = null;
-        if (decoded.meta != null) {
-            argument = decoded.meta.get('argument');
-        }
         const msg = decoded.msg;
         const code = decoded.code;
         const errorCode = twirpErrorError(code);
-        return new TwirpError2(msg, code, argument, errorCode);
+        const meta = decoded.meta;
+        return new TwirpError2(msg, code, meta, errorCode);
     }
     catch (error) { // fallback
         return exports.EncodeServerError(response);
@@ -47,10 +44,15 @@ function twirpErrorError(code) {
     if (code == 'malformed') {
         isMalformed = true;
     }
+    let isInvalidArgument = false;
+    if (code == 'invalid_argument') {
+        isInvalidArgument = true;
+    }
     const errorCode = {
         isNotFound: isNotFound,
         isUnauthenticated: isUnauthenticated,
-        isMalformed: isMalformed
+        isMalformed: isMalformed,
+        isInvalidArgument: isInvalidArgument
     };
     return errorCode;
 }
@@ -80,11 +82,11 @@ exports.EncodeServerError = (response) => {
 };
 /* ERRORS */
 class TwirpError2 extends Error {
-    constructor(msg, code, argument, errorCode) {
+    constructor(msg, code, meta, errorCode) {
         super("twirp.Error");
         this.msg = msg;
         this.code = code;
-        this.argument = argument;
+        this.meta = meta;
         this.errorCode = errorCode;
     }
 }
