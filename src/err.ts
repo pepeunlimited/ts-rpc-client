@@ -93,8 +93,6 @@ interface TwirpErrorMessage {
     meta?: TwirpErrorMeta
 }
 
-
-
 /* ERRORS */
 
 export class TwirpError2 extends Error {
