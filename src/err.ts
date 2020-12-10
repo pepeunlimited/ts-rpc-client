@@ -1,4 +1,5 @@
 import {AxiosResponse} from "axios";
+import {ApolloError, AuthenticationError, ForbiddenError} from "apollo-server-errors";
 
 
 /* DECODERS */
@@ -96,13 +97,71 @@ export class ServerError extends Error {
     code: string
     path: string
     host: string
+    msg: string
 
     constructor(msg: string, code: string, statusCode: number, path: string, host: string) {
         super(msg);
+        this.msg = msg
         this.code = code
         this.statusCode = statusCode;
         this.path = path
         this.host = host
+    }
+}
+
+/* GraphQL Apollo ERRORS */
+
+export class InternalServerError extends ApolloError {
+
+    constructor(msg: string) {
+        super(msg, "INTERNAL_SERVER_ERROR");
+    }
+}
+
+export class NotFoundError extends ApolloError {
+
+    constructor(msg: string) {
+        super(msg, "NOT_FOUND");
+    }
+}
+
+export class PermissionDeniedNotFoundError extends ForbiddenError {
+
+    constructor(msg: string) {
+        super(msg);
+    }
+}
+
+export class AlreadyExistError extends ApolloError {
+
+    constructor(msg: string) {
+        super(msg, "ALREADY_EXIST");
+    }
+}
+
+export class AccessDeniedError extends ApolloError {
+
+    constructor(msg: string) {
+        super(msg, "ACCESS_DENIED");
+    }
+}
+
+export function throwAccessRefreshTokenError(error: TwirpError) {
+    if (error.msg == 'access_token_malformed'  ||
+        error.msg == 'refresh_token_malformed' ||
+        error.msg == 'refresh_token_expired'   ||
+        error.msg == 'access_token_expired') {
+        throw new AuthenticationError(error.msg)
+    }
+}
+
+export function throwIfAccessDeniedError(error: Error) {
+    if (!(error instanceof ForbiddenError)) {
+        return
+    }
+    const accessDenied = error as ForbiddenError
+    if (accessDenied.message == "ACCESS_DENIED") {
+        throw new AccessDeniedError("ACCESS_DENIED")
     }
 }
 
